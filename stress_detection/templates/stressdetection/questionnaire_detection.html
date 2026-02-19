@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroGuard - Early Stress Detection</title>
+    <style>
+        /* [KEEP ALL YOUR EXISTING CSS - SAME BEAUTIFUL DESIGN] */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: linear-gradient(135deg, #d6eaf8 0%, #a9dfbf 50%, #667eea 100%);
+            min-height: 100vh; overflow-x: hidden;
+            padding-top: 0 !important;
+        }
+        .logo {
+            position: fixed !important; 
+            top: 10px !important; 
+            left: 15px !important; 
+            z-index: 10000 !important; 
+            animation: logoFloat 6s ease-in-out infinite;
+        }
+        @keyframes logoFloat {
+            0%, 100% { transform: scale(0.9) translateX(0px) translateY(0px) rotate(0deg); }
+            25% { transform: scale(1.05) translateX(8px) translateY(-4px) rotate(2deg); }
+            50% { transform: scale(0.95) translateX(-4px) translateY(6px) rotate(-1deg); }
+            75% { transform: scale(1.02) translateX(6px) translateY(-2px) rotate(1deg); }
+        }
+        .page { 
+            position: absolute; top: 0; left: 0; width: 100%; min-height: 100vh; 
+            padding: 20px; overflow-y: auto; transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform: translateX(100%); 
+            padding-top: 120px;
+        }
+        .page.active { transform: translateX(0); }
+        .page.prev { transform: translateX(-100%); }
+        .container {
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+            width: 90%; max-width: 800px; margin: 0 auto; padding: 40px;
+            border-radius: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        h1 { 
+            background: linear-gradient(135deg, #2e86c1, #16a085); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-size: 2.8em; margin-bottom: 20px;
+        }
+        h2 { color: #1b4f72; margin: 15px 0; }
+        .highlight-text { color: #16a085; font-weight: bold; font-size: 1.3em; }
+        .radio-row {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 20px 0; padding: 10px 0;
+        }
+        .option {
+            flex: 1; min-width: 120px; cursor: pointer; text-align: center; transition: all 0.3s;
+            padding: 20px 10px; border-radius: 20px; background: rgba(255,255,255,0.9);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1); border: 3px solid transparent;
+        }
+        .option:hover { 
+            transform: scale(1.08); background: #f8f9ff; box-shadow: 0 15px 35px rgba(0,0,0,0.2); 
+        }
+        .option.selected {
+            background: linear-gradient(135deg, #4CAF50, #45a049); color: white; border-color: #4CAF50;
+            transform: scale(1.1); box-shadow: 0 12px 40px rgba(76,175,80,0.4);
+        }
+        .option img { width: 50px; height: 50px; margin-bottom: 8px; filter: grayscale(50%); }
+        .option.selected img { filter: none; }
+        .option p { font-weight: bold; font-size: 14px; margin: 0; }
+        button {
+            padding: 18px 35px; margin: 15px; font-size: 18px; border: none; border-radius: 12px;
+            background: linear-gradient(135deg, #5dade2, #2e86c1); color: white; cursor: pointer;
+            box-shadow: 0 8px 25px rgba(93,173,226,0.4); transition: all 0.3s;
+        }
+        button:hover:not(:disabled) { transform: translateY(-5px); box-shadow: 0 12px 35px rgba(93,173,226,0.6); }
+        .btn-back { background: linear-gradient(135deg, #6c757d, #495057) !important; margin-top: 20px !important; }
+        .btn-complete { background: linear-gradient(135deg, #4CAF50, #45a049) !important; }
+        .question-container { max-width: 700px; margin: 0 auto; }
+        .progress { 
+            background: #e0e0e0; height: 15px; border-radius: 10px; margin: 30px 0; 
+            overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .progress-bar { 
+            background: linear-gradient(90deg, #4caf50, #8bc34a, #4caf50); 
+            height: 100%; width: 0%; transition: width 0.8s ease; box-shadow: 0 0 15px #4caf50;
+        }
+        .result-container { max-width: 500px; margin: 0 auto; text-align: center; }
+        .gauge-container {
+            width: 380px; height: 220px; margin: 40px auto; position: relative;
+            border-radius: 50% 50% 50% 50%/60% 60% 40% 40%;
+            background: linear-gradient(145deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -5px 20px rgba(0,0,0,0.1);
+        }
+        .gauge-arc {
+            position: absolute; top: 25px; left: 25px; right: 25px; height: 160px;
+            background: conic-gradient(from 180deg at 50% 10%, #4CAF50 0deg 60deg, #FF9800 60deg 120deg, #F44336 120deg 180deg);
+            border-radius: 380px 380px 0 0; clip-path: ellipse(52% 55% at 50% 0%);
+        }
+        .needle {
+            position: absolute; bottom: 35px; left: 50%; width: 6px; height: 140px;
+            background: linear-gradient(to top, #333 0%, #666 50%, #fff 100%);
+            transform-origin: bottom center; transform: translateX(-50%) rotate(-90deg);
+            transition: transform 2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border-radius: 3px 3px 0 0; box-shadow: 0 0 20px rgba(0,0,0,0.5); z-index: 20;
+        }
+        .needle-center {
+            position: absolute; bottom: 28px; left: 50%; width: 35px; height: 35px;
+            background: radial-gradient(circle, #333 40%, #666 70%, #999 100%);
+            border-radius: 50%; transform: translateX(-50%);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3); z-index: 25;
+        }
+        .gauge-numbers {
+            position: absolute; top: 20px; left: 0; right: 0;
+            display: flex; justify-content: space-between; padding: 0 45px;
+            font-weight: bold; font-size: 16px; color: #333;
+        }
+        .gauge-numbers span { text-shadow: 0 1px 3px rgba(255,255,255,0.8); }
+        .level { font-size: 3em; font-weight: bold; margin: 25px 0; text-shadow: 0 2px 15px rgba(0,0,0,0.2); }
+        .low { color: #4CAF50; }
+        .medium { color: #FF9800; }
+        .high { color: #F44336; }
+        @media (max-width: 768px) {
+            .radio-row { gap: 5px; }
+            .option { min-width: 100px; padding: 15px 8px; }
+            .option img { width: 40px; height: 40px; }
+            .container { width: 95%; padding: 25px; }
+            h1 { font-size: 2.2em; }
+            .gauge-container { width: 320px; height: 190px; }
+            .needle { height: 120px; bottom: 30px; }
+            .needle-center { width: 30px; height: 30px; bottom: 24px; }
+            .logo { top: 8px !important; left: 10px !important; transform: scale(0.8); }
+            .page { padding-top: 100px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">
+        <svg width="150" height="120" viewBox="0 0 200 150">
+            <circle cx="70" cy="70" r="45" fill="#d6eaf8" stroke="#2e86c1" stroke-width="3"/>
+            <path d="M50 60 Q70 40 90 60 Q110 80 80 95 Q60 110 50 85" fill="none" stroke="#2e86c1" stroke-width="3"/>
+            <path d="M60 70 L70 80 L80 65 L90 85" fill="none" stroke="#16a085" stroke-width="3"/>
+            <text x="120" y="70" font-size="26" fill="#2e86c1" font-weight="bold">Neuro</text>
+            <text x="120" y="100" font-size="26" fill="#16a085" font-weight="bold">Guard</text>
+        </svg>
+    </div>
+
+    <!-- Page 1: Category Selection -->
+    <div id="page1" class="page active">
+        <div class="container">
+            <h1> Knowing Your Stress Level</h1>
+            <h2>Is the first step toward taking control.</h2>
+            <h2>Take a moment to understand your stress and take the first step towards a healthier and happier mind.</h2>
+            <h2 class="highlight-text">Answer the following 10 questions to identify your stress level and gain better awareness of your mental well-being.</h2>
+            <h2>Select Your Category</h2>
+            <button onclick="startTest('student')">👨‍🎓 Student</button>
+            <button onclick="startTest('employee')">💼 Working Employee</button>
+            <button onclick="startTest('other')">👤 Other People</button>
+        </div>
+    </div>
+
+    <!-- Page 2: Questions -->
+    <div id="page2" class="page">
+        <div class="container">
+            <h1 id="questionTitle">Stress Assessment</h1>
+            <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+            <div class="question-container" id="questionContent"></div>
+        </div>
+    </div>
+
+    <!-- Page 3: Results -->
+    <div id="page3" class="page">
+        <div class="container result-container">
+            <h1> Your Stress Analysis</h1>
+            <div class="gauge-container">
+                <div class="gauge-arc"></div>
+                <div class="gauge-numbers">
+                    <span>0%</span><span>20%</span><span>40%</span><span>60%</span><span>80%</span>
+                </div>
+                <div class="needle" id="needle"></div>
+                <div class="needle-center"></div>
+            </div>
+            <div class="level low" id="resultLevel">Low Stress </div>
+            <h2 id="resultPercent">0.0%</h2>
+            <p id="resultDesc">Analysis complete!</p>
+            <button class="btn-complete" onclick="goToVoice()"> Continue to Voice Analysis</button>
+        
+        </div>
+    </div>
+
+    <script>
+        const questions = {
+            student: ["Do you feel exam pressure?","Do you feel difficulty concentrating on studies?","Do you lose interest in studies sometimes?","Do you feel pressure from parents or teachers?","Do you feel fear of failure?","Do you feel time management difficulty?","Do you feel sleep disturbance?","Do you feel overthinking problems?","Do you feel low energy most days?","Do you feel worried about future education plans?"],
+            employee: ["Do you feel workload pressure?","Do deadlines make you anxious?","Do you feel stressed about job performance?","Do you feel difficulty balancing work and personal life?","Do you feel workplace competition stress?","Do you feel job insecurity stress?","Do you feel mentally exhausted after work?","Do you feel pressure from boss or management?","Do you feel lack of motivation at work?","Do you feel difficulty concentrating at work?"],
+            other: ["Do you feel stressed about daily responsibilities?","Do you feel financial pressure?","Do you feel social relationship stress?","Do you feel lonely often?","Do you feel overthinking problems?","Do you feel sleep disturbance?","Do you feel low energy most days?","Do you feel anxiety about future?","Do you feel emotional mood swings?","Do you feel physical tiredness frequently?"]
+        };
+
+        let currentCategory = '', currentQuestion = 0, score = 0, currentPage = 1;
+        let selectedAnswer = -1;
+
+        function startTest(category) {
+            currentCategory = category; 
+            currentQuestion = 0; 
+            score = 0; 
+            selectedAnswer = -1;
+            navigateTo(2); 
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const qList = questions[currentCategory];
+            document.getElementById('progressBar').style.width = (currentQuestion/10)*100 + '%';
+            document.getElementById('questionTitle').textContent = `Q${currentQuestion+1}/10 - ${currentCategory.toUpperCase()}`;
+            
+            document.getElementById('questionContent').innerHTML = `
+                <h2 style="color: #1b4f72; margin-bottom: 30px; font-size: 1.4em;">${qList[currentQuestion]}</h2>
+                <div class="radio-row">
+                    <div class="option ${selectedAnswer === 0 ? 'selected' : ''}" onclick="selectAnswer(0)">
+                        <img src="https://cdn-icons-png.flaticon.com/128/190/190411.png">
+                        <p>Never (0)</p>
+                    </div>
+                    <div class="option ${selectedAnswer === 1 ? 'selected' : ''}" onclick="selectAnswer(1)">
+                        <img src="https://cdn-icons-png.flaticon.com/128/1828/1828843.png">
+                        <p>Rarely (1)</p>
+                    </div>
+                    <div class="option ${selectedAnswer === 2 ? 'selected' : ''}" onclick="selectAnswer(2)">
+                        <img src="https://cdn-icons-png.flaticon.com/128/742/742751.png">
+                        <p>Sometimes (2)</p>
+                    </div>
+                    <div class="option ${selectedAnswer === 3 ? 'selected' : ''}" onclick="selectAnswer(3)">
+                        <img src="https://cdn-icons-png.flaticon.com/128/929/929426.png">
+                        <p>Often (3)</p>
+                    </div>
+                    <div class="option ${selectedAnswer === 4 ? 'selected' : ''}" onclick="selectAnswer(4)">
+                        <img src="https://cdn-icons-png.flaticon.com/128/148/148767.png">
+                        <p>Always (4)</p>
+                    </div>
+                </div>
+                ${selectedAnswer >= 0 ? `<button class="btn-complete" onclick="nextQuestion()">✅ Next Question</button>` : ''}
+            `;
+        }
+
+        function selectAnswer(value) {
+            selectedAnswer = value;
+            showQuestion();
+        }
+
+        // ✅ PERFECT FIXED nextQuestion() - NO MORE JSON ERRORS!
+        async function nextQuestion() {
+            score += selectedAnswer;
+            currentQuestion++;
+            selectedAnswer = -1;
+            
+            if (currentQuestion < 10) {
+                showQuestion();
+            } else {
+                //  LOCAL PROCESSING ONLY - NO BACKEND CALL!
+                const percent = (score / 40) * 100;
+                
+                // Save to localStorage for fusion analysis
+                localStorage.setItem('qScore', percent.toFixed(1));
+                localStorage.setItem('qResult', JSON.stringify({
+                    'questionnaire_score': score,
+                    'stress_percent': percent.toFixed(1),
+                    'questionnaire_stress': percent > 66 ? 'high' : percent > 33 ? 'medium' : 'low',
+                    'category': currentCategory
+                }));
+                
+                console.log(' Questionnaire Complete:', {score, percent, category: currentCategory});
+                showResult();
+            }
+        }
+
+        function navigateTo(page) {
+            document.getElementById(`page${currentPage}`).classList.remove('active');
+            document.getElementById(`page${currentPage}`).classList.add('prev');
+            currentPage = page;
+            document.getElementById(`page${currentPage}`).classList.remove('prev');
+            document.getElementById(`page${currentPage}`).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function showResult() {
+            const percent = (score / 40) * 100;
+            
+            const needle = document.getElementById('needle');
+            const rotation = -90 + (percent / 100) * 180;
+            needle.style.transform = `translateX(-50%) rotate(${rotation}deg)`;
+            
+            let stressLevel = '';
+            if (percent <= 33) {
+                stressLevel = 'low';
+                document.getElementById('resultLevel').innerHTML = 'Low Stress ✅';
+                document.getElementById('resultDesc').textContent = 'Take rest';
+            } else if (percent <= 66) {
+                stressLevel = 'medium';
+                document.getElementById('resultLevel').innerHTML = 'Moderate Stress ⚠️';
+                document.getElementById('resultDesc').textContent = 'Go out or talk to close one';
+            } else {
+                stressLevel = 'high';
+                document.getElementById('resultLevel').innerHTML = 'High Stress 🚨';
+                document.getElementById('resultDesc').textContent = 'Please take immediate step';
+            }
+
+            document.getElementById('resultLevel').className = `level ${stressLevel}`;
+            document.getElementById('resultPercent').textContent = `${percent.toFixed(1)}%`;
+            navigateTo(3);
+        }
+
+        function goToVoice() {
+            window.location.href = '/voice/';
+        }
+
+        function goBackHome() {
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

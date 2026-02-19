@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroGuard - AI Stress Detection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-[#0f172a] via-[#1e3a8a] to-[#312e81] min-h-screen flex items-center justify-center p-6">
+    <div class="glass backdrop-blur-xl bg-white/10 rounded-3xl p-12 w-full max-w-2xl shadow-2xl border border-white/20 text-center text-white">
+        <h1 class="text-5xl font-bold mb-4 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">NeuroGuard</h1>
+        <p class="text-2xl mb-8 opacity-90 max-w-md mx-auto leading-relaxed"> 3-Step Stress Detection<br><span class="text-blue-300">Questionnaire → Voice → Face Analysis</span></p>
+        
+        <div class="grid md:grid-cols-3 gap-6 mb-12 p-8 bg-white/5 rounded-2xl">
+            <div class="text-center group cursor-pointer" onclick="window.location.href='/questionnaire/'">
+                <div class="w-16 h-16 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-2xl mx-auto mb-4 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">📋</div>
+                <h3 class="text-xl font-bold mb-2 group-hover:text-emerald-300 transition-colors">Step 1</h3>
+                <p class="text-blue-200">10 Questions</p>
+            </div>
+            <div class="text-center group cursor-pointer" onclick="window.location.href='/voice/'">
+                <div class="w-16 h-16 bg-gradient-to-r from-pink-400 to-rose-500 rounded-2xl mx-auto mb-4 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">🎤</div>
+                <h3 class="text-xl font-bold mb-2 group-hover:text-rose-300 transition-colors">Step 2</h3>
+                <p class="text-blue-200">Voice Analysis</p>
+            </div>
+            <div class="text-center group cursor-pointer" onclick="window.location.href='/face/'">
+                <div class="w-16 h-16 bg-gradient-to-r from-purple-400 to-indigo-500 rounded-2xl mx-auto mb-4 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">😀</div>
+                <h3 class="text-xl font-bold mb-2 group-hover:text-indigo-300 transition-colors">Step 3</h3>
+                <p class="text-blue-200">Face Detection</p>
+            </div>
+        </div>
+        
+        <!-- Main Start Button - Goes to Questionnaire FIRST -->
+        <button onclick="window.location.href='/questionnaire/'" 
+                class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-8 px-12 rounded-3xl font-bold text-2xl hover:shadow-2xl transform hover:-translate-y-3 transition-all duration-500 mb-6">
+             Start Stress Analysis
+        </button>
+        
+        <div class="text-xl opacity-75">
+            <span>Powered by Neuroguard</span>
+            <div class="flex justify-center gap-4 mt-4 text-sm">
+                <span>40% Questions</span>
+                <span>•</span>
+                <span>30% Voice</span>
+                <span>•</span>
+                <span>30% Face</span>
+            </div>
+        </div>
+
+        <!-- Quick Access Links -->
+        <div class="mt-8 pt-8 border-t border-white/20">
+            <div class="flex flex-wrap gap-4 justify-center text-sm">
+                <a href="/questionnaire/" class="text-blue-200 hover:text-white transition-all px-4 py-2 rounded-lg hover:bg-white/10">📋 Questionnaire</a>
+                <a href="/voice/" class="text-pink-200 hover:text-white transition-all px-4 py-2 rounded-lg hover:bg-white/10">🎤 Voice Test</a>
+                <a href="/face/" class="text-purple-200 hover:text-white transition-all px-4 py-2 rounded-lg hover:bg-white/10">😀 Face Scan</a>
+                <a href="/final/" class="text-orange-200 hover:text-white transition-all px-4 py-2 rounded-lg hover:bg-white/10">📊 Results</a>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .glass { 
+            backdrop-filter: blur(40px); 
+            background: rgba(255,255,255,0.15); 
+            border: 1px solid rgba(255,255,255,0.25);
+            box-shadow: 0 25px 45px rgba(0,0,0,0.1);
+        }
+    </style>
+</body>
+</html>

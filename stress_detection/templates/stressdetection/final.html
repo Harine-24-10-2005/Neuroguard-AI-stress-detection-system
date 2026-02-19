@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeuroGuard - Triple Stress Analysis Report</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+.glass { 
+    backdrop-filter: blur(30px); 
+    background: rgba(255,255,255,0.08); 
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+.radial-progress {
+    --value: 0;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    position: relative;
+    background: conic-gradient(#10b981 calc(var(--value) * 100%), #1f2937 0);
+    mask: radial-gradient(farthest-side, transparent calc(99% - 12px), black 0);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto;
+}
+.radial-progress.high { background: conic-gradient(#ef4444 calc(var(--value) * 100%), #1f2937 0); }
+.radial-progress.medium { background: conic-gradient(#f59e0b calc(var(--value) * 100%), #1f2937 0); }
+.score-card:hover { transform: translateY(-4px); transition: all 0.3s ease; }
+</style>
+</head>
+
+<body class="bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900 min-h-screen flex items-center justify-center p-4 sm:p-6">
+<div class="glass rounded-2xl p-6 sm:p-8 w-full max-w-4xl lg:max-w-5xl text-center text-white">
+
+<!-- HEADER -->
+<h1 class="text-3xl sm:text-4xl lg:text-5xl font-black mb-4 tracking-wide bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+ Triple AI Stress Report
+</h1>
+<p class="text-sm sm:text-base lg:text-lg opacity-80 mb-8 max-w-2xl mx-auto leading-relaxed">
+<strong>Questionnaire (25%) + Voice Analysis (35%) + Face Detection (40%)</strong> = Final Stress analysis
+</p>
+
+<!-- 🔥 MAIN RADIAL GAUGE (FIXED!) -->
+<div class="mb-8 sm:mb-12">
+    <div id="finalGauge" class="radial-progress mb-4"></div>
+    <div id="finalScore" class="text-4xl sm:text-5xl lg:text-6xl font-black bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent mb-2">--%</div>
+    <div id="finalLevel" class="text-xl sm:text-2xl font-bold text-white/90">Loading AI Analysis...</div>
+</div>
+
+<!-- 📊 TRIPLE SCORES GRID -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8">
+    <div class="score-card bg-blue-500/20 p-4 sm:p-6 rounded-xl border-2 border-blue-400/40 hover:border-blue-400/70">
+        <div class="text-2xl sm:text-3xl mb-3 mx-auto">📋</div>
+        <h3 class="text-base sm:text-lg font-bold text-blue-300 mb-2">Questionnaire</h3>
+        <div id="qScoreCard" class="text-xl sm:text-2xl lg:text-3xl font-black text-blue-200">--%</div>
+        <div class="text-xs sm:text-sm text-blue-300 mt-2 font-medium">25% Weight</div>
+    </div>
+
+    <div class="score-card bg-pink-500/20 p-4 sm:p-6 rounded-xl border-2 border-pink-400/40 hover:border-pink-400/70">
+        <div class="text-2xl sm:text-3xl mb-3 mx-auto">🎤</div>
+        <h3 class="text-base sm:text-lg font-bold text-pink-300 mb-2">Voice Analysis</h3>
+        <div id="vScoreCard" class="text-xl sm:text-2xl lg:text-3xl font-black text-pink-200">--%</div>
+        <div class="text-xs sm:text-sm text-pink-300 mt-2 font-medium">35% Weight</div>
+    </div>
+
+    <div class="score-card bg-purple-500/20 p-4 sm:p-6 rounded-xl border-2 border-purple-400/40 hover:border-purple-400/70">
+        <div class="text-2xl sm:text-3xl mb-3 mx-auto">😀</div>
+        <h3 class="text-base sm:text-lg font-bold text-purple-300 mb-2">Face Analysis</h3>
+        <div id="fScoreCard" class="text-xl sm:text-2xl lg:text-3xl font-black text-purple-200">--%</div>
+        <div class="text-xs sm:text-sm text-purple-300 mt-2 font-medium">40% Weight</div>
+    </div>
+</div>
+
+<!-- 🔍 DETAILED INSIGHTS & RECOMMENDATIONS -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+    <!-- STRESS ANALYSIS DETAILS -->
+    <div class="bg-gradient-to-br from-red-500/15 to-orange-500/15 p-6 rounded-2xl border-2 border-red-400/40 backdrop-blur-sm">
+        <h3 class="text-xl sm:text-2xl font-bold text-red-300 mb-6 flex items-center justify-center gap-2">
+            🔍 Detailed Stress Analysis
+        </h3>
+        <ul id="insightsList" class="text-left text-sm sm:text-base space-y-3">
+            <li class="flex items-start gap-3 p-3 bg-red-500/10 rounded-xl border-l-4 border-red-400">
+                <span class="w-6 h-6 bg-red-400 rounded-full flex-shrink-0 mt-0.5">⚠️</span>
+                <span>Analysis loading...</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- PERSONALIZED RECOMMENDATIONS -->
+    <div class="bg-gradient-to-br from-emerald-500/15 to-teal-500/15 p-6 rounded-2xl border-2 border-emerald-400/40 backdrop-blur-sm">
+        <h3 class="text-xl sm:text-2xl font-bold text-emerald-300 mb-6 flex items-center justify-center gap-2">
+            💡 Actionable Recommendations
+        </h3>
+        <ul id="recList" class="text-left text-sm sm:text-base space-y-3">
+            <li class="flex items-start gap-3 p-3 bg-emerald-500/10 rounded-xl border-l-4 border-emerald-400">
+                <span class="w-6 h-6 bg-emerald-400 rounded-full flex-shrink-0 mt-0.5">✅</span>
+                <span>Personalized suggestions loading...</span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- 🎮 PROFESSIONAL BUTTONS -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-8 border-t-2 border-white/30">
+    <a href="/" class="h-14 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 text-white 
+          font-bold text-sm sm:text-base rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-1.5 
+          flex items-center justify-center gap-2 px-4 transition-all duration-400 active:scale-95">
+        🏠 Home
+    </a>
+    <a href="/questionnaire/" class="h-14 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 
+          text-white font-bold text-sm sm:text-base rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-1.5 
+          flex items-center justify-center gap-2 px-4 transition-all duration-400 active:scale-95">
+        🔄 New Test
+    </a>
+   
+</div>
+
+</div>
+
+<script>
+// 🔥 PERFECT TRIPLE FUSION (25%Q + 35%V + 40%F)
+function loadAndFuseScores() {
+    const qScore = parseFloat(localStorage.getItem('qScore') || 55);
+    const vScore = parseFloat(localStorage.getItem('vScore') || 68);
+    const fScore = parseFloat(localStorage.getItem('fScore') || 79);
+    
+    // Triple Fusion Algorithm
+    const finalScore = (qScore * 0.25) + (vScore * 0.35) + (fScore * 0.40);
+    const finalRounded = Math.round(finalScore);
+    
+    // Update score cards
+    document.getElementById('qScoreCard').textContent = qScore.toFixed(0) + '%';
+    document.getElementById('vScoreCard').textContent = vScore.toFixed(0) + '%';
+    document.getElementById('fScoreCard').textContent = fScore.toFixed(0) + '%';
+    
+    // Update main gauge
+    document.getElementById('finalScore').textContent = finalRounded + '%';
+    const gauge = document.getElementById('finalGauge');
+    gauge.style.setProperty('--value', finalRounded / 100);
+    
+    // Dynamic stress level + styling
+    let levelText = '', gaugeClass = '';
+    if (finalRounded > 66) {
+        levelText = '🚨 HIGH STRESS DETECTED';
+        gaugeClass = 'high';
+        document.querySelector('.glass').style.background = 'rgba(239, 68, 68, 0.15)';
+    } else if (finalRounded > 33) {
+        levelText = '⚠️ MODERATE STRESS';
+        gaugeClass = 'medium';
+    } else {
+        levelText = '✅ LOW STRESS LEVEL';
+    }
+    
+    document.getElementById('finalLevel').textContent = levelText;
+    gauge.className = `radial-progress ${gaugeClass}`;
+    
+    // Generate detailed analysis
+    generateDetailedInsights(qScore, vScore, fScore, finalRounded);
+    generateActionableRecommendations(finalRounded);
+}
+
+function generateDetailedInsights(q, v, f, total) {
+    const insights = [];
+    
+    if (q > 70) insights.push("High anxiety responses in questionnaire");
+    if (v > 70) insights.push("Elevated voice pitch + speech tension patterns");
+    if (f > 70) insights.push("Facial micro-expressions + muscle strain detected");
+    if (q > 60 && v > 60) insights.push("Questionnaire + Voice correlation confirmed");
+    if (total > 75) insights.push("Triple AI consensus: Immediate intervention recommended");
+    
+    if (insights.length === 0) {
+        insights.push("All biomarkers within healthy ranges");
+        insights.push("Excellent stress management detected");
+    }
+    
+    document.getElementById('insightsList').innerHTML = 
+        insights.map((insight, i) => `
+            <li class="flex items-start gap-3 p-3 bg-red-500/10 rounded-xl border-l-4 border-red-400 transition-all hover:bg-red-500/20">
+                <span class="w-6 h-6 bg-red-400 rounded-full flex-shrink-0 mt-0.5 font-bold text-white flex items-center justify-center text-xs">${i+1}</span>
+                <span>${insight}</span>
+            </li>
+        `).join('');
+}
+
+function generateActionableRecommendations(score) {
+    let recs = [];
+    
+    if (score > 75) {
+        recs = [
+            "Practice 4-7-8 breathing technique (5 mins now)",
+            "Take 20-minute nature walk immediately", 
+            "Drink 500ml water + avoid caffeine",
+            "Contact professional counselor",
+            "Use Headspace meditation (emergency mode)"
+        ];
+    } else if (score > 50) {
+        recs = [
+            "Deep breathing exercises (5 mins daily)",
+            "10-minute outdoor walk every 2 hours",
+            "Progressive muscle relaxation technique",
+            "Reduce screen time before bed",
+            "Try Calm/Headspace guided meditation"
+        ];
+    } else {
+        recs = [
+            "Continue your excellent stress management",
+            "Maintain 7-8 hours quality sleep nightly",
+            "Weekly yoga or mindfulness sessions",
+            "Stay hydrated (3L water daily)",
+            "Regular exercise maintains low stress"
+        ];
+    }
+    
+    document.getElementById('recList').innerHTML = 
+        recs.map((rec, i) => `
+            <li class="flex items-start gap-3 p-3 bg-emerald-500/10 rounded-xl border-l-4 border-emerald-400 transition-all hover:bg-emerald-500/20">
+                <span class="w-6 h-6 bg-emerald-400 rounded-full flex-shrink-0 mt-0.5 font-bold text-white flex items-center justify-center text-xs">${i+1}</span>
+                <span>${rec}</span>
+            </li>
+        `).join('');
+}
+
+function shareResults() {
+    const q = parseFloat(localStorage.getItem('qScore') || 50);
+    const v = parseFloat(localStorage.getItem('vScore') || 50);
+    const f = parseFloat(localStorage.getItem('fScore') || 50);
+    const final = Math.round((q*0.25 + v*0.35 + f*0.40));
+    
+    const text = `NeuroGuard AI Stress Report\n${final}% ${final>66?'HIGH':final>33?'MODERATE':'LOW'} stress\nQ:${q}% V:${v}% F:${f}%`;
+    navigator.clipboard.writeText(text).then(() => {
+        alert('📋 Analysis report copied to clipboard!');
+    });
+}
+
+function clearAndExit() {
+    if (confirm('Clear all analysis data and return to home?')) {
+        localStorage.clear();
+        window.location.href = '/';
+    }
+}
+
+// Initialize on page load
+window.addEventListener('load', loadAndFuseScores);
+</script>
+</body>
+</html>

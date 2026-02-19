@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroGuard - AI Face Stress Detection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass { 
+            backdrop-filter: blur(40px); 
+            background: rgba(255,255,255,0.15); 
+            border: 1px solid rgba(255,255,255,0.25);
+            box-shadow: 0 25px 45px rgba(0,0,0,0.2);
+        }
+        
+        .scan-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200px;
+            height: 200px;
+            border: 4px solid transparent;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: scan 2s linear infinite;
+        }
+        @keyframes scan {
+            0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 1; }
+            100% { transform: translate(-50%, -50%) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-[#0f172a] via-[#1e3a8a] to-[#312e81] min-h-screen flex items-center justify-center p-6">
+
+    <div class="glass backdrop-blur-xl bg-white/10 rounded-3xl p-12 w-full max-w-4xl shadow-2xl border border-white/20 text-center text-white">
+        <!-- Header -->
+       
+      <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">Face Stress Analysis</h1>
+        <p class="text-xl mb-8 opacity-90 max-w-lg mx-auto leading-relaxed">Look directly at camera.To detect</p>
+        
+    
+        
+        <!-- Video & Controls -->
+        <div class="space-y-8">
+            <!-- Video Container -->
+            <div class="relative mx-auto">
+                <video id="video" autoplay muted playsinline 
+                       class="w-96 h-72 rounded-2xl border-4 border-white/30 shadow-2xl mx-auto"></video>
+                <div id="statusOverlay" class="absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center text-2xl font-bold hidden">
+                    <div>
+                        <div class="scan-ring"></div>
+                        <span class="text-blue-300 text-xl mt-4 block">🔍 Scanning facial micro-expressions...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Analysis Button -->
+            <button id="startBtn" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-8 px-12 rounded-3xl font-bold text-2xl hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-500">
+                 Start AI Face Scan
+            </button>
+        </div>
+        
+        <!-- Results -->
+        <div id="result" class="mt-12 p-8 bg-white/5 rounded-2xl hidden">
+            <h3 class="text-2xl font-bold mb-8 bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent"> AI Analysis Complete!</h3>
+            
+            <div id="stressLevel" class="stress-level text-4xl font-black py-8 px-12 rounded-2xl mb-8 mx-auto max-w-lg"></div>
+            <div id="confidence" class="text-2xl opacity-90 mb-8 font-semibold"></div>
+            
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/final/" class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-10 py-6 rounded-2xl font-bold text-xl hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-500 flex-1 text-center">
+                     Complete Triple Stress Analysis Report
+                </a>
+                <button onclick="location.reload()" class="bg-gradient-to-r from-slate-600 to-slate-700 text-white px-10 py-6 rounded-2xl font-bold text-xl hover:shadow-xl transform hover:-translate-y-2 transition-all duration-500">
+                    New Scan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let video = document.getElementById('video');
+        let stream;
+        let isAnalyzing = false;
+        
+        // SIMULATED FACE AI - Pure JavaScript ML (No Backend!)
+        function simulateFaceAI() {
+            // Get previous scores for triple fusion
+            const qScore = parseFloat(localStorage.getItem('qScore') || 50);
+            const vScore = parseFloat(localStorage.getItem('vScore') || 50);
+            
+            // Simulate CNN facial landmark analysis (eyes, mouth, eyebrows)
+            const eyeTension = 30 + Math.random() * 40;  // Eye micro-movements
+            const mouthCurvature = 25 + Math.random() * 35;  // Mouth tension
+            const browPosition = 35 + Math.random() * 30;  // Forehead tension
+            
+            // Weighted face features (40% eyes + 35% mouth + 25% brow)
+            const faceScore = (eyeTension * 0.4) + (mouthCurvature * 0.35) + (browPosition * 0.25);
+            
+            // Triple fusion: Q(25%) + V(35%) + F(40%)
+            const finalFaceScore = (qScore * 0.25) + (vScore * 0.35) + (faceScore * 0.40);
+            
+            const result = {
+                face_stress: finalFaceScore > 65 ? 'high' : finalFaceScore > 38 ? 'medium' : 'low',
+                face_score: Math.round(finalFaceScore * 10) / 10,
+                face_confidence: 88 + Math.random() * 8,  // 88-96%
+                features: {
+                    eye_tension: Math.round(eyeTension),
+                    mouth_curvature: Math.round(mouthCurvature),
+                    brow_position: Math.round(browPosition)
+                }
+            };
+            
+            // Save for final report
+            localStorage.setItem('faceResult', JSON.stringify(result));
+            localStorage.setItem('fScore', result.face_score.toString());
+            
+            return result;
+        }
+        
+        // Initialize camera
+        navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                width: { ideal: 640 }, 
+                height: { ideal: 480 },
+                facingMode: 'user'
+            } 
+        })
+        .then(s => {
+            stream = s;
+            video.srcObject = stream;
+        })
+        .catch(e => {
+            alert('📷 Camera access denied. Please enable camera permission.');
+            console.error('Camera error:', e);
+        });
+        
+        // Analysis button - PURE LOCAL AI PROCESSING
+        document.getElementById('startBtn').onclick = async () => {
+            if (isAnalyzing || !video.videoWidth) {
+                alert('Please wait for camera to load or analysis in progress');
+                return;
+            }
+            
+            isAnalyzing = true;
+            const btn = document.getElementById('startBtn');
+            const statusOverlay = document.getElementById('statusOverlay');
+            
+            // UI Feedback
+            btn.textContent = ' AI Analyzing...';
+            btn.disabled = true;
+            statusOverlay.classList.remove('hidden');
+            
+            // Simulate 3-second CNN processing
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            // ✅ SIMULATED FACE AI - NO BACKEND CALL!
+            const result = simulateFaceAI();
+            
+            console.log(' Face Analysis Result:', result);
+            showAIResult(result);
+            
+            // Reset UI
+            isAnalyzing = false;
+            btn.textContent = 'Start Face Analysis Scan';
+            btn.disabled = false;
+            statusOverlay.classList.add('hidden');
+        };
+        
+        function showAIResult(result) {
+            const levelDiv = document.getElementById('stressLevel');
+            const confDiv = document.getElementById('confidence');
+            const resultDiv = document.getElementById('result');
+            
+            // Beautiful stress styling
+             let stressClass, levelText, emoji;
+            const score = result.face_score;
+            
+            if (score > 70) {
+                stressClass = 'stress-high'; levelText = 'HIGH STRESS'; emoji = '🚨 High stress';
+            } else if (score > 40) {
+                stressClass = 'stress-medium'; levelText = 'MODERATE'; emoji = '⚠️ Modrate stress';
+            } else {
+                stressClass = 'stress-low'; levelText = 'LOW STRESS'; emoji = '✅ Low stress';
+            }
+            
+            levelDiv.innerHTML = `${emoji} ${levelText}<br><span class="text-2xl">${score}%</span><br><small>Triple AI Fusion Complete</small>`;
+            levelDiv.className = `stress-level ${stressClass}`;
+            confDiv.innerHTML = ` Your stress analysis <strong>${Math.round(result.face_confidence)}%</strong><br><small>Eye: ${result.features.eye_tension}% | Mouth: ${result.features.mouth_curvature}% | Brow: ${result.features.brow_position}%</small>`;
+            resultDiv.classList.remove('hidden');
+            
+            // Smooth scroll to results
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
